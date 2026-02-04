@@ -1,0 +1,113 @@
+--// ECLIPSE HUB LOADSTRING EXAMPLE
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/GoldenCheats/DEMBZ-UI-LIB/refs/heads/main/UI%20LIB%20SOURCE"))()
+
+-- PRESET: Valentine's Theme
+Library:SetTheme({
+    Main = Color3.fromRGB(45, 10, 25),
+    Sidebar = Color3.fromRGB(55, 15, 30),
+    TopBar = Color3.fromRGB(70, 20, 40),
+    Accent = Color3.fromRGB(255, 80, 150),
+    BoxBG = Color3.fromRGB(60, 20, 35),
+    BoxOutline = Color3.fromRGB(100, 30, 60),
+    TextMain = Color3.fromRGB(255, 230, 240),
+    TextDim = Color3.fromRGB(200, 140, 160),
+    ToggleOn = Color3.fromRGB(255, 50, 100),
+    ToggleOff = Color3.fromRGB(120, 30, 50),
+    ToggleDark = Color3.fromRGB(30, 5, 15),
+    
+    -- FIX: We register a custom category so the ColorPicker has a place to "Save" the color
+    -- This stops it from resetting to white while keeping it separate from the UI Accent!
+    ChamsInternal = Color3.fromRGB(255, 80, 150) 
+})
+
+local Win = Library:CreateWindow("VALENTINE'S ECLIPSE v1.0.9")
+
+--// VISUALS TAB
+local Vis = Win:NewTab("Visuals", "rbxassetid://6034289535")
+
+local ChamsEnabled = false
+local ChamsColor = Color3.fromRGB(255, 80, 150) 
+local CurrentChams = {}
+
+local function ApplyChams(player)
+    if player == game.Players.LocalPlayer then return end
+    local function addHighlight(char)
+        if char:FindFirstChild("EclipseChams") then char.EclipseChams:Destroy() end
+        local h = Instance.new("Highlight")
+        h.Name = "EclipseChams"
+        h.FillColor = ChamsColor
+        h.OutlineColor = Color3.new(1, 1, 1)
+        h.FillTransparency = 0.5
+        h.Enabled = ChamsEnabled
+        h.Parent = char
+        CurrentChams[player] = h
+    end
+    if player.Character then addHighlight(player.Character) end
+    player.CharacterAdded:Connect(addHighlight)
+end
+
+for _, p in pairs(game.Players:GetPlayers()) do ApplyChams(p) end
+game.Players.PlayerAdded:Connect(ApplyChams)
+
+Vis:AddHeader("Player ESP")
+
+Vis:AddToggle("Enable Player Chams", function(state)
+    ChamsEnabled = state
+    for _, highlight in pairs(CurrentChams) do
+        if highlight then highlight.Enabled = ChamsEnabled end
+    end
+end)
+
+-- FIXED COLOR PICKER:
+-- We use "ChamsInternal" so it saves to the theme table we created above.
+Vis:AddColorPicker("Chams Fill Color", "ChamsInternal", function(color) 
+    ChamsColor = color 
+    -- We update the theme table so the picker REMEMBERS the color when minimized
+    Vis:UpdateTheme("ChamsInternal", color) 
+    
+    for _, highlight in pairs(CurrentChams) do
+        if highlight then highlight.FillColor = color end
+    end
+end)
+
+--// PREMIUM TAB
+local Prem = Win:NewTab("Premium", "rbxassetid://6035047379")
+Prem:AddHeader("Core Features")
+Prem:AddToggle("God Mode", function(s) print(s) end)
+Prem:AddSlider("Walkspeed Multiplier", 16, 250, 16, function(v) print(v) end)
+Prem:AddTextbox("Custom Tag", "Enter name...", function(t) print(t) end)
+Prem:AddBind("Instant Kill Bind", Enum.KeyCode.F, function() print("Executed") end)
+
+local playerNames = {}
+for _, p in pairs(game:GetService("Players"):GetPlayers()) do table.insert(playerNames, p.Name) end
+
+Prem:AddHeader("Dropdown Implementations")
+local selectedTarget = "None"
+Prem:AddDropdown("Select Player (Button Required)", playerNames, function(s) selectedTarget = s end)
+Prem:AddButton("Print Selected Player Name", function() print(selectedTarget) end)
+Prem:AddDropdown("Select Player (Auto-Print)", playerNames, function(s) print(s) end)
+Prem:AddDropdown("Action Selector", {"Kill", "Kick", "Teleport", "Freeze", "Crash"}, function(s) print(s) end)
+
+--// SETTINGS TAB
+local Set = Win:NewTab("Settings", "rbxassetid://6031289116")
+Set:AddHeader("UI Bindings")
+Set:AddUIToggleBind("Library Toggle Key", Win.ToggleKey) 
+
+Set:AddHeader("Main Theme Colors")
+Set:AddColorPicker("Accent Color", "Accent", function(c) Set:UpdateTheme("Accent", c) end)
+Set:AddColorPicker("Main Background", "Main", function(c) Set:UpdateTheme("Main", c) end)
+Set:AddColorPicker("Sidebar Background", "Sidebar", function(c) Set:UpdateTheme("Sidebar", c) end)
+Set:AddColorPicker("Top Bar Background", "TopBar", function(c) Set:UpdateTheme("TopBar", c) end)
+
+Set:AddHeader("Element Styling")
+Set:AddColorPicker("Object Background", "BoxBG", function(c) Set:UpdateTheme("BoxBG", c) end)
+Set:AddColorPicker("Border Color", "BoxOutline", function(c) Set:UpdateTheme("BoxOutline", c) end)
+
+Set:AddHeader("Text Colors")
+Set:AddColorPicker("Primary Text", "TextMain", function(c) Set:UpdateTheme("TextMain", c) end)
+Set:AddColorPicker("Secondary Text", "TextDim", function(c) Set:UpdateTheme("TextDim", c) end)
+
+Set:AddHeader("Toggle System Colors")
+Set:AddColorPicker("Toggle ON State", "ToggleOn", function(c) Set:UpdateTheme("ToggleOn", c) end)
+Set:AddColorPicker("Toggle OFF State", "ToggleOff", function(c) Set:UpdateTheme("ToggleOff", c) end)
+Set:AddColorPicker("Toggle Background (Dark)", "ToggleDark", function(c) Set:UpdateTheme("ToggleDark", c) end)
