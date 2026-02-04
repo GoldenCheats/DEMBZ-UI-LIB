@@ -20,7 +20,7 @@ Library:SetTheme({
     ChamsInternal = Color3.fromRGB(255, 80, 150) 
 })
 
-local Win = Library:CreateWindow("VALENTINE'S ECLIPSE v1.0.9")
+local Win = Library:CreateWindow("VALENTINE'S ECLIPSE v3.0.9")
 
 --// VISUALS TAB
 local Vis = Win:NewTab("Visuals", "rbxassetid://6034289535")
